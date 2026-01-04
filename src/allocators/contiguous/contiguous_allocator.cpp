@@ -1,5 +1,6 @@
 #include "contiguous_allocator.h"
 #include <iomanip>
+#include <iostream>
 using namespace std;
 ContiguousAllocator::ContiguousAllocator(size_t memory_size)
     : head(nullptr),
@@ -88,6 +89,113 @@ int ContiguousAllocator::allocate(size_t size){
             return chosen->id;
         }
 
-        
+
+
+        //-- deallocation and merging of free blocks --//
+        bool ContiguousAllocator::deallocate(int id) {
+    Block* curr = head;
+
+    // 1. Find the block by ID
+    while (curr) {
+        if (!curr->free && curr->id == id)
+            break;
+        curr = curr->next;
+    }
+
+    if (!curr)
+        return false;   // invalid id
+
+    // 2. Mark block as free
+    curr->free = true;
+    curr->id = -1;
+
+    // 3. Coalesce with previous block if free
+    if (curr->prev && curr->prev->free) {
+        Block* prev = curr->prev;
+
+        prev->size += curr->size;
+        prev->next = curr->next;
+
+        if (curr->next)
+            curr->next->prev = prev;
+
+        delete curr;
+        curr = prev;
+    }
+
+    // 4. Coalesce with next block if free
+    if (curr->next && curr->next->free) {
+        Block* next = curr->next;
+
+        curr->size += next->size;
+        curr->next = next->next;
+
+        if (next->next)
+            next->next->prev = curr;
+
+        delete next;
+    }
+
+    return true;
+}
+
+
+        void ContiguousAllocator::dump() const {
+    Block* curr = head;
+    cout << "Memory State:\n";
+    while (curr) {
+        cout << "["
+                  << curr->start << " - "
+                  << curr->start + curr->size - 1 << "] "
+                  << (curr->free ? "FREE" : "USED");
+
+        if (!curr->free)
+            cout << " (id=" << curr->id << ")";
+
+        cout << "\n";
+        curr = curr->next;
+    }
+    cout << "----------------------\n";
+}
+
+void ContiguousAllocator::stats() const {
+    size_t used_memory = 0;
+    size_t free_memory = 0;
+    size_t largest_free = 0;
+    int free_blocks = 0;
+
+    Block* curr = head;
+
+    while (curr) {
+        if (curr->free) {
+            free_memory += curr->size;
+            free_blocks++;
+            if (curr->size > largest_free)
+                largest_free = curr->size;
+        } else {
+            used_memory += curr->size;
+        }
+        curr = curr->next;
+    }
+
+    double external_fragmentation = 0.0;
+    if (free_memory > 0) {
+        external_fragmentation =
+            (1.0 - (double)largest_free / (double)free_memory) * 100.0;
+    }
+
+    cout << "Memory Statistics:\n";
+    cout << "Total Memory      : " << total_memory << "\n";
+    cout << "Used Memory       : " << used_memory << "\n";
+    cout << "Free Memory       : " << free_memory << "\n";
+    cout << "Free Blocks       : " << free_blocks << "\n";
+    cout << "Largest Free Block: " << largest_free << "\n";
+    cout << "External Fragmentation: "
+              << external_fragmentation << " %\n";
+    cout << "Internal Fragmentation: 0 %\n";
+    cout << "-----------------------------\n";
+}
+
+
 
         
