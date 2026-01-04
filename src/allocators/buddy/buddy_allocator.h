@@ -14,7 +14,10 @@ private:
     int max_order;
 
    vector<list<size_t>> freeLists;
-    unordered_map<size_t, size_t> allocated; // addr → size
+   // unordered_map<size_t, size_t> allocated; // addr → size
+    unordered_map<size_t, pair<size_t, size_t>> allocated;
+// addr → {requested_size, allocated_block_size}
+
    
      int sizeToOrder(size_t size) const;
     size_t orderToSize(int order) const;

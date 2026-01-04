@@ -54,7 +54,7 @@ int BuddyAllocator::allocate(size_t size) {
         freeLists[order].push_back(buddy);
     }
 
-    allocated[addr] = orderToSize(req_order);
+    allocated[addr] = {size, orderToSize(req_order)};
     return (int)addr;
 }
 //--- deallocation---
@@ -63,7 +63,7 @@ bool BuddyAllocator::deallocate(size_t address) {
     if (it == allocated.end())
         return false;
 
-    size_t size = it->second;
+    size_t size = it->second.second;// the allocated block size
     allocated.erase(it);
 
     int order = sizeToOrder(size);
@@ -101,22 +101,32 @@ void BuddyAllocator::dump() const {
     std::cout << "-----------------------------\n";
 }
 void BuddyAllocator::stats() const {
-    size_t used = 0;
+   
     size_t internal_frag = 0;
+    size_t requested=0;
+    size_t allocated_mem=0;
 
     for (auto& p : allocated) {
-        used += p.second;
+        requested += p.second.first;
+        allocated_mem += p.second.second;
+        
     }
 
-    size_t free = total_memory - used;
+    size_t internal_frag = allocated_mem - requested;
 
-    std::cout << "Buddy Allocator Stats:\n";
-    std::cout << "Total Memory : " << total_memory << "\n";
-    std::cout << "Used Memory  : " << used << "\n";
-    std::cout << "Free Memory  : " << free << "\n";
-    std::cout << "Internal Fragmentation: "
-              << (used > 0 ? 0 : 0) << "\n"; // explained below
-    std::cout << "-----------------------------\n";
+    cout << "Buddy Allocator Stats:\n";
+    cout << "Total Memory : " << total_memory << "\n";
+    cout << "Used Memory  : " << allocated_mem << "\n";
+    cout << "Free Memory  : " << (total_memory - allocated_mem) << "\n";
+   double internal_frag_percent =
+    allocated_mem == 0 ? 0.0 :
+    (double)internal_frag / (double)allocated_mem * 100.0;
+
+cout << "Internal Fragmentation: "
+     << internal_frag << " bytes ("
+     << internal_frag_percent << " %)\n";
+
+    cout << "-----------------------------\n";
 }
 
 
