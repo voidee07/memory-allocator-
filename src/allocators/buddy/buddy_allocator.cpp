@@ -102,7 +102,7 @@ void BuddyAllocator::dump() const {
 }
 void BuddyAllocator::stats() const {
    
-    size_t internal_frag = 0;
+    
     size_t requested=0;
     size_t allocated_mem=0;
 
