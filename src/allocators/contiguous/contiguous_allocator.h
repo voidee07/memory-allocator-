@@ -29,6 +29,7 @@ private:
     Block* head;                 // start of block list
     size_t total_memory;
     AllocationStrategy strategy;
+   
     int next_id;
 
 public:

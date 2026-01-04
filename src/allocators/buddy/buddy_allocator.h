@@ -11,6 +11,7 @@ class BuddyAllocator {
 private:
     size_t total_memory;
     size_t min_block_size;
+   
     int max_order;
 
    vector<list<size_t>> freeLists;

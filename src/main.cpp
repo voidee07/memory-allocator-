@@ -28,6 +28,9 @@ vector<string> tokenize(const string& line) {
 }
 
 int main() {
+    size_t alloc_requests = 0;
+size_t alloc_success  = 0;
+
     Mode currentMode = Mode::NONE;
     ContiguousAllocator* contig = nullptr;
     BuddyAllocator* buddy = nullptr;
@@ -108,14 +111,24 @@ int main() {
             }
 
             size_t size = stoul(tokens[1]);
+            alloc_requests++;
 
             if (currentMode == Mode::CONTIGUOUS) {
                 int id = contig->allocate(size);
+                if (id != -1)
+                {alloc_success++;
                 cout << "Allocated id: " << id << "\n";
+            }
+                else cout << "Allocation failed\n";
             }
             else if (currentMode == Mode::BUDDY) {
                 int addr = buddy->allocate(size);
+                if (addr != -1)
+                {alloc_success++;
                 cout << "Allocated addr: " << addr << "\n";
+            } else {
+                    cout << "Allocation failed\n";
+                }
             }
             else {
                 cout << "No allocator initialized\n";
@@ -157,11 +170,22 @@ int main() {
                 buddy->stats();
             else
                 cout << "No allocator initialized\n";
+
+
+        double success_rate =
+        alloc_requests == 0 ? 0.0 :
+        (double)alloc_success / alloc_requests * 100.0;
+
+    cout << "Allocation Requests : " << alloc_requests << "\n";
+    cout << "Allocation Success  : " << alloc_success << "\n";
+    cout << "Success Rate        : " << success_rate << " %\n";
         }
 
         else {
             cout << "Unknown command\n";
         }
+
+        
     }
 
     delete contig;

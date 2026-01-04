@@ -29,6 +29,7 @@ ContiguousAllocator::~ContiguousAllocator() {
 // the three allocation strategies only differ in selection of the free block the allocation and status keeping are same hence we do not make three different functions
 
 int ContiguousAllocator::allocate(size_t size){
+   
     if (size == 0 || size > total_memory) {
         return -1; // invalid size
     }
