@@ -5,17 +5,21 @@
 
 #include "allocators/contiguous/contiguous_allocator.h"
 #include "allocators/buddy/buddy_allocator.h"
+#include "cache/cache_controller.h"
+
 
 using namespace std;
 enum class Mode {
     NONE,
     CONTIGUOUS,
-    BUDDY
+    BUDDY,
+    CACHE
 };
 Mode currentMode = Mode::NONE;
 
 ContiguousAllocator* contig = nullptr;
 BuddyAllocator* buddy = nullptr;
+CacheController* cacheCtrl = nullptr;
 
 
 vector<string> tokenize(const string& line) {
@@ -81,10 +85,26 @@ size_t alloc_success  = 0;
                 currentMode = Mode::BUDDY;
                 cout << "Initialized buddy allocator\n";
             }
-            else {
+           else if (tokens[1] == "cache") {
+    if (tokens.size() < 6) {
+        cout << "Usage: init cache <L1_size> <L2_size> <block_size> <assoc>\n";
+        continue;
+    }
+
+    delete cacheCtrl;
+    cacheCtrl = new CacheController(
+        stoul(tokens[2]),
+        stoul(tokens[3]),
+        stoul(tokens[4]),
+        stoul(tokens[5])
+    );
+
+    currentMode = Mode::CACHE;
+    cout << "Initialized cache (L1 + L2)\n";
+}
+else {
                 cout << "Unknown allocator type\n";
-            }
-        }
+        }}
 
         // SET STRATEGY (CONTIGUOUS ONLY)
         else if (cmd == "set") {
@@ -134,6 +154,31 @@ size_t alloc_success  = 0;
                 cout << "No allocator initialized\n";
             }
         }
+
+        else if (cmd == "access") {
+    if (currentMode != Mode::CACHE || tokens.size() < 2) {
+        cout << "Access valid only in cache mode\n";
+        continue;
+    }
+
+    size_t addr = stoul(tokens[1]);
+    cacheCtrl->access(addr);
+}
+
+else if (cmd == "cache_dump") {
+    if (currentMode == Mode::CACHE)
+        cacheCtrl->dump();
+    else
+        cout << "Cache not initialized\n";
+}
+
+else if (cmd == "cache_stats") {
+    if (currentMode == Mode::CACHE)
+        cacheCtrl->stats();
+    else
+        cout << "Cache not initialized\n";
+}
+
 
         // FREE
         else if (cmd == "free") {
@@ -190,6 +235,8 @@ size_t alloc_success  = 0;
 
     delete contig;
     delete buddy;
+    delete cacheCtrl;
+
     return 0;
 }
 
