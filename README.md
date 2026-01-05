@@ -12,6 +12,16 @@ The simulator is interactive and allows users to experiment with allocation stra
 fragmentation behavior, and cache hit/miss patterns under different workloads.
 
 ---
+## Project Structure 
+src/
+ ├── allocators/
+ │   ├── contiguous/
+ │   └── buddy/
+ ├── cache/
+ │   ├── cache.cpp
+ │   └── cache_controller.cpp
+ └── main.cpp
+
 
 ## Features
 
