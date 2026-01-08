@@ -1,0 +1,11 @@
+init contiguous 2000
+set first_fit
+malloc 300
+malloc 500
+malloc 700
+dump
+stats
+free 1
+dump
+stats
+exit

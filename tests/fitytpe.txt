@@ -1,0 +1,18 @@
+init contiguous 1000
+set best_fit
+malloc 100
+malloc 200
+malloc 300
+malloc 150
+free 1
+free 3
+
+dump
+malloc 120
+dump
+stats
+
+set worst_fit
+malloc 200
+dump
+stat
