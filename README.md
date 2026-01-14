@@ -12,6 +12,14 @@ The simulator is interactive and allows users to experiment with allocation stra
 fragmentation behavior, and cache hit/miss patterns under different workloads.
 
 ---
+
+
+https://github.com/user-attachments/assets/237540ce-c9b1-452a-aa75-2b9e9c9abf94
+
+
+
+
+
 ## Project Structure 
 src/
  ├── allocators/
@@ -65,3 +73,4 @@ g++ -std=c++17 src/main.cpp \
 
 ### Run
 .\memsim
+
